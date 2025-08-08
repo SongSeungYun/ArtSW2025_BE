@@ -10,10 +10,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly configService: ConfigService,
     private readonly usersService: UsersService,
   ) {
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET is not defined in the environment variables.');
+    }
+
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // HTTP 헤더에서 Bearer 토큰 추출
-      ignoreExpiration: false, // 만료된 토큰은 인증 거부
-      secretOrKey: configService.get<string>('JWT_SECRET'), // .env 환경변수의 비밀키 사용
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: jwtSecret,
     });
   }
 
