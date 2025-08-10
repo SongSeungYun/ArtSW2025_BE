@@ -18,13 +18,30 @@ export class AuthService {
   }
 
   // 사용자 검증 로직 (LocalStrategy에서 사용)
-  async validateUser(loginId: string, pass: string): Promise<User | null> {
+  async validateUser(loginId: string, pass: string): Promise<User> {
+    // 1. 아이디로 사용자 조회 (없으면 UsersService에서 404 에러 발생)
     const localAuth = await this.usersService.findLocalAuthByLoginId(loginId);
 
-    if (localAuth && (await bcrypt.compare(pass, localAuth.passwordHash))) {
-      return localAuth.user; // 비밀번호 일치 시 User 객체 반환
+    // --- 임시 디버깅 코드 시작 ---
+    console.log('--- Password Comparison ---');
+    console.log('Input Password:', pass);
+    console.log('DB Hashed Password:', localAuth.passwordHash);
+    // --- 임시 디버깅 코드 끝 ---
+
+    // 2. 비밀번호 비교
+    const isPasswordMatched = await bcrypt.compare(pass, localAuth.passwordHash);
+
+    // --- 임시 디버깅 코드 시작 ---
+    console.log('Comparison Result (isPasswordMatched):', isPasswordMatched);
+    console.log('---------------------------');
+    // --- 임시 디버깅 코드 끝 ---
+
+    if (!isPasswordMatched) {
+      // 비밀번호가 틀렸을 경우, 명시적으로 UnauthorizedException 발생
+      throw new UnauthorizedException('아이디 또는 비밀번호가 올바르지 않습니다.');
     }
-    return null; // 일치하지 않으면 null 반환
+
+    return localAuth.user;
   }
 
   // 로그인 성공 시 JWT 발급
