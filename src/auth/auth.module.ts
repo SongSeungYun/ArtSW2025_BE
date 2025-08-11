@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -21,6 +22,9 @@ import { JwtStrategy } from './strategies/jwt.strategy';
           expiresIn: configService.get<string>('JWT_EXPIRATION_TIME', '1h'), // 기본값 1시간
         },
       }),
+    }),
+    BullModule.registerQueue({
+      name: 'email-queue',
     }),
   ],
   controllers: [AuthController],
