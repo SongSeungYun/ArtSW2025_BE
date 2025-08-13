@@ -11,12 +11,15 @@ export class KakaoStrategy extends PassportStrategy(Strategy, 'kakao') {
     private readonly authService: AuthService,
   ) {
     const clientID = configService.get<string>('KAKAO_CLIENT_ID');
-    if (!clientID) {
-      throw new Error('Kakao clientID is not defined.');
+    const clientSecret = configService.get<string>('KAKAO_CLIENT_SECRET'); // Client Secret 가져오기
+
+    if (!clientID || !clientSecret) { // Client Secret 존재 여부도 함께 확인
+      throw new Error('Kakao clientID or clientSecret is not defined.');
     }
 
     super({
       clientID,
+      clientSecret, // Client Secret 전달
       callbackURL: 'http://localhost:3000/auth/kakao/callback',
     });
   }
