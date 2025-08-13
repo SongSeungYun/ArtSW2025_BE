@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, OneToMany } from 'typeorm';
 import { LocalAuth } from './local-auth.entity';
+import { SocialAuth } from './social-auth.entity';
 
 @Entity({ schema: 'auth', name: 'Users' })
 export class User {
@@ -9,7 +10,7 @@ export class User {
   @Column({ type: 'varchar', length: 255 })
   name: string;
 
-  @Column({ type: 'varchar', length: 320, unique: true })
+  @Column({ type: 'varchar', length: 320, unique: true, nullable: true })
   email: string;
 
   @Column({ name: 'is_admin', type: 'boolean', default: false })
@@ -26,4 +27,7 @@ export class User {
 
   @OneToOne(() => LocalAuth, localAuth => localAuth.user)
   localAuth: LocalAuth;
+
+  @OneToMany(() => SocialAuth, socialAuth => socialAuth.user)
+  socialAuths: SocialAuth[];
 }

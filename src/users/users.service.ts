@@ -12,9 +12,14 @@ export class UsersService {
     private readonly localAuthRepository: LocalAuthRepository,
   ) {}
 
-  // 사용자 생성 요청을 레포지토리로 전달
+  // 로컬 사용자 생성 요청을 레포지토리로 전달
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     return this.userRepository.createUserAndLocalAuth(createUserDto);
+  }
+
+  // 소셜 사용자 생성 요청을 레포지토리로 전달
+  async createSocialUser(profile: { provider: string; providerUserId: string; email?: string; name?: string }): Promise<User> {
+    return this.userRepository.createSocialUser(profile);
   }
 
   // 로그인 ID로 LocalAuth 정보 찾는 요청을 레포지토리로 전달
@@ -35,6 +40,7 @@ export class UsersService {
     return user;
   }
 
+  // 이메일로 User 정보 찾는 요청을 레포지토리로 전달
   async findUserByEmail(email: string): Promise<User> {
     const user = await this.userRepository.findOneBy({ email });
     if (!user) {

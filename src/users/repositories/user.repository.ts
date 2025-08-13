@@ -4,6 +4,7 @@ import { User } from '../entities/user.entity';
 import { LocalAuth } from '../entities/local-auth.entity';
 import { CreateUserDto } from 'src/auth/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { SocialAuth } from '../entities/social-auth.entity';
 
 @Injectable()
 export class UserRepository extends Repository<User> {
@@ -11,11 +12,10 @@ export class UserRepository extends Repository<User> {
     super(User, dataSource.createEntityManager());
   }
 
-  // 회원가입: User와 LocalAuth를 트랜잭션으로 함께 생성
+  // 로컬 회원가입: User와 LocalAuth를 트랜잭션으로 함께 생성
   async createUserAndLocalAuth(createUserDto: CreateUserDto): Promise<User> {
     const { name, email, loginId, password_hash } = createUserDto;
 
-    // 비밀번호 해싱
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password_hash, salt);
 
@@ -24,26 +24,49 @@ export class UserRepository extends Repository<User> {
     await queryRunner.startTransaction();
 
     try {
-      // 1. User 엔티티 생성 및 저장
       const user = this.create({ name, email });
       await queryRunner.manager.save(user);
 
-      // 2. LocalAuth 엔티티 생성 및 저장
       const localAuth = new LocalAuth();
       localAuth.loginId = loginId;
       localAuth.passwordHash = hashedPassword;
-      localAuth.user = user; // User와 관계 설정
+      localAuth.user = user;
       await queryRunner.manager.save(localAuth);
 
-      // 트랜잭션 성공 시 커밋
       await queryRunner.commitTransaction();
       return user;
     } catch (err) {
-      // 에러 발생 시 롤백
       await queryRunner.rollbackTransaction();
       throw err;
     } finally {
-      // 쿼리 러너 연결 해제
+      await queryRunner.release();
+    }
+  }
+
+  // 소셜 로그인 사용자를 위한 생성 메서드
+  async createSocialUser(profile: { provider: string; providerUserId: string; email?: string; name?: string }): Promise<User> {
+    const { provider, providerUserId, email, name } = profile;
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const user = this.create({ name, email });
+      await queryRunner.manager.save(user);
+
+      const socialAuth = new SocialAuth();
+      socialAuth.provider = provider;
+      socialAuth.providerUserId = providerUserId;
+      socialAuth.user = user;
+      await queryRunner.manager.save(socialAuth);
+
+      await queryRunner.commitTransaction();
+      return user;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
       await queryRunner.release();
     }
   }
