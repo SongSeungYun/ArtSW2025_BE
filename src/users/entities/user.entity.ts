@@ -1,33 +1,19 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, OneToMany } from 'typeorm';
-import { LocalAuth } from './local-auth.entity';
-import { SocialAuth } from './social-auth.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { UserTutorialProgress } from '../../user-progress/entities/user-tutorial-progress.entity';
+import { UserQuizProgress } from '../../user-progress/entities/user-quiz-progress.entity';
 
-@Entity({ schema: 'auth', name: 'Users' })
+@Entity('User') // Assuming a 'User' table exists
 export class User {
-  @PrimaryGeneratedColumn('uuid', { name: 'user_id' })
-  userId: string;
+  @PrimaryGeneratedColumn()
+  user_id: number;
 
-  @Column({ type: 'varchar', length: 255 })
-  name: string;
-
-  @Column({ type: 'varchar', length: 320, unique: true, nullable: true })
+  // Add other user properties like username, email, password etc.
+  @Column({ unique: true })
   email: string;
 
-  @Column({ name: 'is_admin', type: 'boolean', default: false })
-  isAdmin: boolean;
+  @OneToMany(() => UserTutorialProgress, (progress) => progress.user)
+  tutorialProgress: UserTutorialProgress[];
 
-  @Column({ type: 'varchar', length: 20, default: 'active' })
-  status: string;
-
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
-  updatedAt: Date;
-
-  @OneToOne(() => LocalAuth, localAuth => localAuth.user)
-  localAuth: LocalAuth;
-
-  @OneToMany(() => SocialAuth, socialAuth => socialAuth.user)
-  socialAuths: SocialAuth[];
+  @OneToMany(() => UserQuizProgress, (progress) => progress.user)
+  quizProgress: UserQuizProgress[];
 }

@@ -12,6 +12,9 @@ import { RedisModule } from './redis/redis.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 import { BullModule } from '@nestjs/bullmq';
+import { TutorialsModule } from './tutorials/tutorials.module';
+import { QuizzesModule } from './quizzes/quizzes.module';
+import { UserProgressModule } from './user-progress/user-progress.module';
 
 @Module({
   imports: [
@@ -67,6 +70,9 @@ import { BullModule } from '@nestjs/bullmq';
     AuthModule,
     EmailModule,
     RedisModule,
+    TutorialsModule,
+    QuizzesModule,
+    UserProgressModule,
   ],
   controllers: [AppController],
   providers: [AppService],
