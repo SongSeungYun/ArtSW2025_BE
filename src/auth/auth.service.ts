@@ -88,7 +88,7 @@ export class AuthService {
 
   // --- 토큰 발급 로직 수정 ---
   private async issueTokens(user: User) {
-    const payload = { email: user.email, sub: user.userId, name: user.name };
+    const payload = { email: user.email, sub: user.user_id, name: user.name };
 
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_SECRET'),
@@ -120,7 +120,7 @@ export class AuthService {
   }
 
   async refreshAccessToken(user: User) {
-    const payload = { email: user.email, sub: user.userId, name: user.name };
+    const payload = { email: user.email, sub: user.user_id, name: user.name };
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_SECRET'),
       expiresIn: this.configService.get<string>('JWT_EXPIRATION_TIME'),

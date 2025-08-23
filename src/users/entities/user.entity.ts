@@ -1,15 +1,28 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, OneToOne } from 'typeorm';
 import { UserTutorialProgress } from '../../user-progress/entities/user-tutorial-progress.entity';
 import { UserQuizProgress } from '../../user-progress/entities/user-quiz-progress.entity';
+import { LocalAuth } from './local-auth.entity';
+import { SocialAuth } from './social-auth.entity';
 
-@Entity('User') // Assuming a 'User' table exists
+@Entity('User', { schema: 'prompting' })
 export class User {
   @PrimaryGeneratedColumn()
   user_id: number;
 
-  // Add other user properties like username, email, password etc.
+  @Column()
+  name: string;
+
   @Column({ unique: true })
   email: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @OneToOne(() => LocalAuth, localAuth => localAuth.user)
+  localAuth: LocalAuth;
+
+  @OneToMany(() => SocialAuth, socialAuth => socialAuth.user)
+  socialAuths: SocialAuth[];
 
   @OneToMany(() => UserTutorialProgress, (progress) => progress.user)
   tutorialProgress: UserTutorialProgress[];

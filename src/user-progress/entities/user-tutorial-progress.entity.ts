@@ -1,9 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Tutorial } from '../../tutorials/entities/tutorial.entity';
-import { User } from '../../users/entities/user.entity'; // Assuming a User entity exists
-import { TutorialStatus } from '../../common/enums/tutorial-status.enum';
+// Path: src/user-progress/entities/user-tutorial-progress.entity.ts
 
-@Entity('UserTutorialProgress')
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { TutorialStatus } from '../../common/enums/tutorial-status.enum';
+import { Method } from '../../tutorials/entities/method.entity';
+
+@Entity('usertutorialprogress', { schema: 'prompting' })
 export class UserTutorialProgress {
   @PrimaryGeneratedColumn()
   progress_id: number;
@@ -12,7 +14,7 @@ export class UserTutorialProgress {
   user_id: number;
 
   @Column()
-  tutorial_id: number;
+  method_id: number;
 
   @Column({
     type: 'enum',
@@ -24,7 +26,7 @@ export class UserTutorialProgress {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Tutorial, (tutorial) => tutorial.progress)
-  @JoinColumn({ name: 'tutorial_id' })
-  tutorial: Tutorial;
+  @ManyToOne(() => Method, (method) => method.progress)
+  @JoinColumn({ name: 'method_id' })
+  method: Method;
 }

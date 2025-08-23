@@ -73,6 +73,6 @@ export class UserRepository extends Repository<User> {
 
   // 사용자 ID로 사용자 찾기
   async findUserById(userId: string): Promise<User | null> {
-    return this.findOneBy({ userId });
+    return this.findOneBy({ user_id: parseInt(userId, 10) });
   }
 }

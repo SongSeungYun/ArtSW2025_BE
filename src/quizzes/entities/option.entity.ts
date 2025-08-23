@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Quiz } from './quiz.entity';
 
-@Entity('OptionTable')
+@Entity({ schema: 'prompting', name:'optiontable' })
 export class Option {
   @PrimaryGeneratedColumn()
   option_id: number;

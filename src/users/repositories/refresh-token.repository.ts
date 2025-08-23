@@ -14,7 +14,7 @@ export class RefreshTokenRepository extends Repository<RefreshToken> {
     expiresAt.setSeconds(expiresAt.getSeconds() + ttl);
 
     // 한 사용자는 하나의 리프레시 토큰만 갖도록 기존 토큰은 삭제 (선택적 로직)
-    await this.delete({ user: { userId: user.userId } });
+    await this.delete({ user: { user_id: user.user_id } });
 
     const refreshToken = this.create({
       user,

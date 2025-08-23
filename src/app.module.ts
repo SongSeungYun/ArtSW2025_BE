@@ -30,7 +30,7 @@ import { UserProgressModule } from './user-progress/user-progress.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       autoLoadEntities: true, // 엔티티 자동 로드
-      synchronize: true, // 개발 환경에서만 true로 설정 (DB 자동 동기화)
+      synchronize: false, // 개발 환경에서만 true로 설정 (DB 자동 동기화)
     }),
     MailerModule.forRootAsync({
       imports: [ConfigModule],

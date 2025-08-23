@@ -30,8 +30,8 @@ export class AuthController {
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     const user = await this.authService.register(createUserDto);
-    const { userId, name, email, createdAt } = user;
-    return { userId, name, email, createdAt };
+    const { user_id, name, email, createdAt } = user;
+    return { userId: user_id, name, email, createdAt };
   }
 
   @UseGuards(LocalAuthGuard)

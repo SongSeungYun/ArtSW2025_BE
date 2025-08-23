@@ -1,8 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { UserTutorialProgress } from '../../user-progress/entities/user-tutorial-progress.entity';
+// Path: src/tutorials/entities/tutorial.entity.ts
+
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Method } from './method.entity';
 
-@Entity('Tutorial')
+@Entity('tutorial', { schema: 'prompting' })
 export class Tutorial {
   @PrimaryGeneratedColumn()
   tutorial_id: number;
@@ -16,10 +17,7 @@ export class Tutorial {
   @Column({ type: 'text' })
   content: string;
 
-  // Method와의 관계 설정 (ManyToOne)
-  @Column()
-  method_id: number;
-
-  @OneToMany(() => UserTutorialProgress, (progress) => progress.tutorial)
-  progress: UserTutorialProgress[];
+  @ManyToOne(() => Method, method => method.tutorials)
+  @JoinColumn({ name: 'method_id' })
+  method: Method;
 }
