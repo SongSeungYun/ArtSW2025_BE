@@ -10,8 +10,8 @@ export class UserTutorialProgress {
   @PrimaryGeneratedColumn()
   progress_id: number;
 
-  @Column()
-  user_id: number;
+  @Column({ type: 'uuid' })
+  user_id: string;
 
   @Column()
   method_id: number;

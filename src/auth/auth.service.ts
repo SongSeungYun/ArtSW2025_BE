@@ -10,6 +10,7 @@ import { RedisService } from '../redis/redis.service';
 import { SocialAuthRepository } from '../users/repositories/social-auth.repository';
 import { ConfigService } from '@nestjs/config';
 import { RefreshTokenRepository } from '../users/repositories/refresh-token.repository';
+import { SocialAuth } from '../users/entities/social-auth.entity';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,6 @@ export class AuthService {
     @InjectQueue('email-queue') private readonly emailQueue: Queue,
   ) {}
 
-  // ... (이메일 인증 및 register, validateUser, validateSocialUser 메서드는 동일) ...
   async sendVerificationEmail(email: string): Promise<void> {
     const existingUser = await this.usersService.findUserByEmail(email).catch(() => null);
     if (existingUser) {
@@ -72,21 +72,24 @@ export class AuthService {
   }
 
   async validateSocialUser(profile: { provider: string; providerUserId: string; email?: string; name?: string }): Promise<User> {
-    const { provider, providerUserId, email, name } = profile;
+    const { provider, providerUserId, email } = profile;
+
     const existingSocialAuth = await this.socialAuthRepository.findByProviderId(provider, providerUserId);
     if (existingSocialAuth) {
       return existingSocialAuth.user;
     }
+
     if (email) {
       const existingUser = await this.usersService.findUserByEmail(email).catch(() => null);
       if (existingUser) {
-        throw new ConflictException('이미 가입된 이메일입니다. 먼저 로그인하여 계정을 연동해주세요.');
+        await this.usersService.linkSocialProfile(existingUser, { provider, providerUserId });
+        return existingUser;
       }
     }
+
     return this.usersService.createSocialUser(profile);
   }
 
-  // --- 토큰 발급 로직 수정 ---
   private async issueTokens(user: User) {
     const payload = { email: user.email, sub: user.user_id, name: user.name };
 

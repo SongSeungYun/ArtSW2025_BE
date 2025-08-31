@@ -14,7 +14,7 @@ import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
-    UsersModule, // UsersService 및 레포지토리 사용
+    UsersModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -22,7 +22,7 @@ import { BullModule } from '@nestjs/bullmq';
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRATION_TIME', '1h'), // 기본값 1시간
+          expiresIn: configService.get<string>('JWT_EXPIRATION_TIME', '1h'),
         },
       }),
     }),
@@ -39,5 +39,7 @@ import { BullModule } from '@nestjs/bullmq';
     KakaoStrategy,
     JwtRefreshStrategy,
   ],
+  exports: [PassportModule, JwtModule],
 })
 export class AuthModule {}
+

@@ -6,8 +6,8 @@ export class UserQuizProgress {
   @PrimaryGeneratedColumn()
   progress_id: number;
 
-  @Column()
-  user_id: number;
+  @Column({ type: 'uuid' })
+  user_id: string;
 
   @Column({ default: false })
   passed: boolean;

@@ -34,7 +34,7 @@ export class TutorialsService {
     return tutorial;
   }
 
-  async completeMethod(userId: number, methodId: number) {
+  async completeMethod(userId: string, methodId: number) {
     // Check if the method exists
     const method = await this.methodRepository.findOneBy({ method_id: methodId });
     if (!method) {

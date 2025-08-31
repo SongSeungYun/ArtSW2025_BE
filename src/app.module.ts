@@ -15,6 +15,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { TutorialsModule } from './tutorials/tutorials.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
 import { UserProgressModule } from './user-progress/user-progress.module';
+import { BoardsModule } from './boards/boards.module';
 
 @Module({
   imports: [
@@ -29,8 +30,9 @@ import { UserProgressModule } from './user-progress/user-progress.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
+      ssl : true,
       autoLoadEntities: true, // 엔티티 자동 로드
-      synchronize: false, // 개발 환경에서만 true로 설정 (DB 자동 동기화)
+      synchronize: false, // 다시 false로 설정
     }),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -73,6 +75,7 @@ import { UserProgressModule } from './user-progress/user-progress.module';
     TutorialsModule,
     QuizzesModule,
     UserProgressModule,
+    BoardsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

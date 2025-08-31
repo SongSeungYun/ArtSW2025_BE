@@ -20,7 +20,7 @@ export class UserProgressService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async getOverallProgress(userId: number) {
+  async getOverallProgress(userId: string) {
     const user = await this.userRepository.findOne({ where: { user_id: userId } });
     if (!user) {
       throw new NotFoundException(`User with ID ${userId} not found`);
@@ -50,7 +50,7 @@ export class UserProgressService {
     };
   }
 
-  async getMethodProgress(userId: number, methodId: number) {
+  async getMethodProgress(userId: string, methodId: number) {
     const progress = await this.userTutorialProgressRepository.findOne({
       where: { user_id: userId, method_id: methodId },
     });
@@ -64,7 +64,7 @@ export class UserProgressService {
   }
 
   async updateMethodProgress(
-    userId: number,
+    userId: string,
     methodId: number,
     updateDto: UpdateUserProgressDto,
   ) {

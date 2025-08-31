@@ -47,7 +47,7 @@ export class QuizzesService {
     });
   }
 
-  async gradeSubmissions(userId: number, submissionDto: CreateQuizSubmissionDto) {
+  async gradeSubmissions(userId: string, submissionDto: CreateQuizSubmissionDto) {
     const results: any[] = [];
     let correctCount = 0;
     let totalGraded = 0;

@@ -13,6 +13,6 @@ export class LocalAuth {
   passwordHash: string;
 
   @OneToOne(() => User, user => user.localAuth, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'user_id' })
   user: User;
 }
