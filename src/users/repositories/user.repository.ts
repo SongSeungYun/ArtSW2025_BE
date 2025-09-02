@@ -63,7 +63,7 @@ export class UserRepository extends Repository<User> {
     }
   }
 
-  async linkSocialAuth(user: User, profile: { provider: string; providerUserId: string }): Promise<SocialAuth> {
+  async linkSocialAuth(user: User, profile: { provider: string; providerUserId: string; }): Promise<SocialAuth> {
     const { provider, providerUserId } = profile;
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();

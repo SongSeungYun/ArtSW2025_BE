@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, Req, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards, Req, ParseIntPipe, UseInterceptors, UploadedFiles, ValidationPipe } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { BoardsService } from './boards.service';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
@@ -13,8 +14,19 @@ export class BoardsController {
   constructor(private readonly boardsService: BoardsService) {}
 
   @Post()
-  createBoard(@Body() createBoardDto: CreateBoardDto, @Req() req) {
-    return this.boardsService.createBoard(createBoardDto, req.user.user_id);
+  @UseInterceptors(FilesInterceptor('images', 10))
+  createBoard(
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Body(new ValidationPipe({ whitelist: true }))
+    createBoardDto: CreateBoardDto,
+    @Req() req,
+  ) {
+    console.log('--- Create Board API ---');
+    console.log('Received Files:', files);
+    console.log('Received DTO:', createBoardDto);
+    console.log('------------------------');
+
+    return this.boardsService.createBoard(createBoardDto, req.user.user_id, files);
   }
 
   @Get()

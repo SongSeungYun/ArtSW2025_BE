@@ -11,7 +11,7 @@ import {
 import { Board } from './board.entity';
 import { User } from '../../users/entities/user.entity';
 
-@Entity({ name: 'BoardComments' })
+@Entity('BoardComments', { schema: 'Board' })
 @Index(['board_id', 'created_at'])
 export class BoardComment {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })

@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { Board } from './board.entity';
 
-@Entity({ name: 'BoardImages' })
+@Entity('BoardImages', { schema: 'Board' })
 @Unique(['board_id', 'sort_order'])
 export class BoardImage {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })

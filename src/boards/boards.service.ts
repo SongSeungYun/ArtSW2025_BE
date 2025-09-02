@@ -11,6 +11,7 @@ import { DataSource } from 'typeorm';
 import { Board } from './entities/board.entity';
 import { BoardImage } from './entities/board-image.entity';
 import { BoardComment } from './entities/board-comment.entity';
+import { UploadService } from './upload.service';
 
 @Injectable()
 export class BoardsService {
@@ -19,33 +20,46 @@ export class BoardsService {
     private readonly boardImageRepository: BoardImageRepository,
     private readonly boardCommentRepository: BoardCommentRepository,
     private readonly dataSource: DataSource,
+    private readonly uploadService: UploadService,
   ) {}
 
-  async createBoard(createBoardDto: CreateBoardDto, userId: string) {
+  async createBoard(
+    createBoardDto: CreateBoardDto,
+    userId: string,
+    files: Array<Express.Multer.File>,
+  ) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
-    try {
-      const { images, ...boardData } = createBoardDto;
-      const board = await queryRunner.manager.save(Board, {
-        ...boardData,
-        user_id: userId,
-      });
 
-      if (images && images.length > 0) {
-        const imageEntities = images.map((image) =>
-          queryRunner.manager.create(BoardImage, {
-            ...image,
+    try {
+      const boardData = { ...createBoardDto, user_id: userId };
+      const board = await queryRunner.manager.save(Board, boardData);
+
+      if (files && files.length > 0) {
+        const imageUrls = await this.uploadService.uploadFiles(files);
+        const imageEntities = imageUrls.map((url, index) => {
+          return queryRunner.manager.create(BoardImage, {
             board_id: board.board_id,
-          }),
-        );
+            image_url: url,
+            sort_order: index + 1,
+          });
+        });
         await queryRunner.manager.save(imageEntities);
       }
 
       await queryRunner.commitTransaction();
-      return this.getBoardById(board.board_id);
+
+      const newBoard = await queryRunner.manager.findOne(Board, {
+        where: { board_id: board.board_id },
+        relations: ['images', 'comments', 'user'],
+      });
+      
+      return newBoard;
+
     } catch (err) {
       await queryRunner.rollbackTransaction();
+      console.error('--- Transaction Error in createBoard (manual) ---', err);
       throw err;
     } finally {
       await queryRunner.release();

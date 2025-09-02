@@ -17,7 +17,7 @@ export enum BoardType {
   GALLERY = 'GALLERY',
 }
 
-@Entity({ name: 'Boards' })
+@Entity('Boards', { schema: 'Board' })
 export class Board {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   board_id: number;

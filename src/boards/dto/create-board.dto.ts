@@ -1,16 +1,5 @@
-import { IsString, IsNotEmpty, IsEnum, IsArray, ValidateNested, IsUrl, IsNumber } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsString, IsNotEmpty, IsEnum } from 'class-validator';
 import { BoardType } from '../entities/board.entity';
-
-class ImageDto {
-  @IsUrl()
-  @IsNotEmpty()
-  image_url: string;
-
-  @IsNumber()
-  @IsNotEmpty()
-  sort_order: number;
-}
 
 export class CreateBoardDto {
   @IsEnum(BoardType)
@@ -24,9 +13,4 @@ export class CreateBoardDto {
   @IsString()
   @IsNotEmpty()
   content: string;
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ImageDto)
-  images: ImageDto[];
 }

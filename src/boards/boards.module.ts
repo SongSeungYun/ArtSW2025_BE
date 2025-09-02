@@ -9,6 +9,7 @@ import { BoardCommentRepository } from './repositories/board-comment.repository'
 import { BoardsController } from './boards.controller';
 import { BoardsService } from './boards.service';
 import { AuthModule } from '../auth/auth.module';
+import { UploadService } from './upload.service';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AuthModule } from '../auth/auth.module';
     BoardRepository,
     BoardImageRepository,
     BoardCommentRepository,
+    UploadService,
   ],
 })
 export class BoardsModule {}

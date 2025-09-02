@@ -30,9 +30,9 @@ import { BoardsModule } from './boards/boards.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      ssl : true,
+      ssl : process.env.DB_SSL === 'true',
       autoLoadEntities: true, // 엔티티 자동 로드
-      synchronize: false, // 다시 false로 설정
+      synchronize: true, // 다시 false로 설정
     }),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -64,7 +64,7 @@ import { BoardsModule } from './boards/boards.module';
       useFactory: (configService: ConfigService) => ({
         connection: {
           host: configService.get<string>('REDIS_HOST'),
-          port: configService.get<number>('REDIS_PORT'),
+          port: Number(configService.get<string>('REDIS_PORT')),
         },
       }),
     }),

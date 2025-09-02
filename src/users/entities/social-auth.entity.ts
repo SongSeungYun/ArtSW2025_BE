@@ -12,8 +12,7 @@ export class SocialAuth {
   @Column({ name: 'provider_user_id', type: 'varchar', length: 255 })
   providerUserId: string;
 
-  @Column({ name: 'refresh_token', type: 'text', nullable: true })
-  refreshToken: string;
+  
 
   @ManyToOne(() => User, user => user.socialAuths, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
