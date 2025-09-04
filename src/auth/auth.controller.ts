@@ -1,4 +1,5 @@
-import { Controller, Post, Body, UseGuards, Request, Get, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Request, Get, HttpCode, HttpStatus, Res } from '@nestjs/common';
+import type { Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -53,9 +54,31 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@Request() req) {
-    // Passport가 user 객체를 req.user에 넣어주면, socialLogin 서비스로 전달
-    return this.authService.socialLogin(req.user as User);
+  async googleAuthRedirect(@Request() req, @Res() res: Response) {
+    try {
+      const { access_token, refresh_token } = await this.authService.socialLogin(req.user as User);
+
+      const user = req.user as User;
+      const userInfo = {
+        user_id: user.user_id,
+        name: user.name,
+        email: user.email,
+        createdAt: user.createdAt,
+      };
+
+      const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const redirectURL =
+        `${frontendURL}/auth/callback?` +
+        `access_token=${encodeURIComponent(access_token)}&` +
+        `refresh_token=${encodeURIComponent(refresh_token)}&` +
+        `user=${encodeURIComponent(JSON.stringify(userInfo))}`;
+
+      return res.redirect(redirectURL);
+    } catch (error) {
+      console.error('Google 로그인 콜백 오류:', error);
+      const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173';
+      return res.redirect(`${frontendURL}/login?error=${encodeURIComponent(error.message)}`);
+    }
   }
 
   // --- Kakao Social Login ---
@@ -65,8 +88,31 @@ export class AuthController {
 
   @Get('kakao/callback')
   @UseGuards(AuthGuard('kakao'))
-  async kakaoAuthRedirect(@Request() req) {
-    return this.authService.socialLogin(req.user as User);
+  async kakaoAuthRedirect(@Request() req, @Res() res: Response) {
+    try {
+      const { access_token, refresh_token } = await this.authService.socialLogin(req.user as User);
+
+      const user = req.user as User;
+      const userInfo = {
+        user_id: user.user_id,
+        name: user.name,
+        email: user.email,
+        createdAt: user.createdAt,
+      };
+
+      const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const redirectURL =
+        `${frontendURL}/auth/callback?` +
+        `access_token=${encodeURIComponent(access_token)}&` +
+        `refresh_token=${encodeURIComponent(refresh_token)}&` +
+        `user=${encodeURIComponent(JSON.stringify(userInfo))}`;
+
+      return res.redirect(redirectURL);
+    } catch (error) {
+      console.error('Kakao 로그인 콜백 오류:', error);
+      const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173';
+      return res.redirect(`${frontendURL}/login?error=${encodeURIComponent(error.message)}`);
+    }
   }
 
   @UseGuards(JwtAuthGuard)
