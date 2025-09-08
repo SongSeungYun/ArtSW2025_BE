@@ -16,6 +16,7 @@ import { TutorialsModule } from './tutorials/tutorials.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
 import { UserProgressModule } from './user-progress/user-progress.module';
 import { BoardsModule } from './boards/boards.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { BoardsModule } from './boards/boards.module';
     QuizzesModule,
     UserProgressModule,
     BoardsModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
