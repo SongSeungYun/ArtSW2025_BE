@@ -9,11 +9,11 @@ import { QueryBoardDto } from './dto/query-board.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('boards')
-@UseGuards(JwtAuthGuard)
 export class BoardsController {
   constructor(private readonly boardsService: BoardsService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FilesInterceptor('images', 10))
   createBoard(
     @UploadedFiles() files: Array<Express.Multer.File>,
@@ -21,10 +21,6 @@ export class BoardsController {
     createBoardDto: CreateBoardDto,
     @Req() req,
   ) {
-    console.log('--- Create Board API ---');
-    console.log('Received Files:', files);
-    console.log('Received DTO:', createBoardDto);
-    console.log('------------------------');
 
     return this.boardsService.createBoard(createBoardDto, req.user.user_id, files);
   }
@@ -34,12 +30,18 @@ export class BoardsController {
     return this.boardsService.getBoards(queryBoardDto);
   }
 
+  @Get('gallery/recent')
+  findRecentGalleries() {
+    return this.boardsService.findRecentGalleries();
+  }
+
   @Get(':board_id')
   getBoardById(@Param('board_id', ParseIntPipe) boardId: number) {
     return this.boardsService.getBoardById(boardId);
   }
 
   @Put(':board_id')
+  @UseGuards(JwtAuthGuard)
   updateBoard(
     @Param('board_id', ParseIntPipe) boardId: number,
     @Body() updateBoardDto: UpdateBoardDto,
@@ -49,11 +51,13 @@ export class BoardsController {
   }
 
   @Delete(':board_id')
+  @UseGuards(JwtAuthGuard)
   deleteBoard(@Param('board_id', ParseIntPipe) boardId: number, @Req() req) {
     return this.boardsService.deleteBoard(boardId, req.user.user_id);
   }
 
   @Post(':board_id/comments')
+  @UseGuards(JwtAuthGuard)
   createComment(
     @Param('board_id', ParseIntPipe) boardId: number,
     @Body() createCommentDto: CreateCommentDto,
@@ -63,6 +67,7 @@ export class BoardsController {
   }
 
   @Put(':board_id/comments/:comment_id')
+  @UseGuards(JwtAuthGuard)
   updateComment(
     @Param('comment_id', ParseIntPipe) commentId: number,
     @Body() updateCommentDto: UpdateCommentDto,
@@ -72,6 +77,7 @@ export class BoardsController {
   }
 
   @Delete(':board_id/comments/:comment_id')
+  @UseGuards(JwtAuthGuard)
   deleteComment(@Param('comment_id', ParseIntPipe) commentId: number, @Req() req) {
     return this.boardsService.deleteComment(commentId, req.user.user_id);
   }

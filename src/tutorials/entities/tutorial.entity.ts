@@ -1,7 +1,8 @@
 // Path: src/tutorials/entities/tutorial.entity.ts
 
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Method } from './method.entity';
+import { BlankAnswer } from './blank-answer.entity';
 
 @Entity('tutorial', { schema: 'prompting' })
 export class Tutorial {
@@ -20,4 +21,7 @@ export class Tutorial {
   @ManyToOne(() => Method, method => method.tutorials)
   @JoinColumn({ name: 'method_id' })
   method: Method;
+
+  @OneToMany(() => BlankAnswer, (blankAnswer) => blankAnswer.tutorial)
+  blankAnswers: BlankAnswer[];
 }

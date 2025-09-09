@@ -103,6 +103,10 @@ export class BoardsService {
     return board;
   }
 
+  async findRecentGalleries(): Promise<Board[]> {
+    return this.boardRepository.findRecentGalleryBoards();
+  }
+
   async updateBoard(boardId: number, updateBoardDto: UpdateBoardDto, userId: string) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
