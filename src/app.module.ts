@@ -15,7 +15,8 @@ import { BullModule } from '@nestjs/bullmq';
 import { TutorialsModule } from './tutorials/tutorials.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
 import { UserProgressModule } from './user-progress/user-progress.module';
-import { BoardsModule } from './boards/boards.module';
+import { InfoBoardsModule } from './info-boards/info-boards.module';
+import { GalleryBoardsModule } from './gallery-boards/gallery-boards.module';
 import { AiModule } from './ai/ai.module';
 
 @Module({
@@ -76,7 +77,8 @@ import { AiModule } from './ai/ai.module';
     TutorialsModule,
     QuizzesModule,
     UserProgressModule,
-    BoardsModule,
+    InfoBoardsModule,
+    GalleryBoardsModule,
     AiModule,
   ],
   controllers: [AppController],

@@ -9,27 +9,15 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { BoardImage } from './board-image.entity';
-import { BoardComment } from './board-comment.entity';
+import { InfoBoardComment } from './info-board-comment.entity';
 
-export enum BoardType {
-  INFO = 'INFO',
-  GALLERY = 'GALLERY',
-}
-
-@Entity('Boards', { schema: 'Board' })
-export class Board {
+@Entity('InfoBoards', { schema: 'Board' })
+export class InfoBoard {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
-  board_id: number;
+  info_board_id: number;
 
   @Column({ type: 'uuid' })
   user_id: string;
-
-  @Column({
-    type: 'varchar',
-    length: 20,
-  })
-  board_type: BoardType;
 
   @Column({ length: 255 })
   title: string;
@@ -47,9 +35,6 @@ export class Board {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @OneToMany(() => BoardImage, (image) => image.board, { cascade: true })
-  images: BoardImage[];
-
-  @OneToMany(() => BoardComment, (comment) => comment.board, { cascade: true })
-  comments: BoardComment[];
+  @OneToMany(() => InfoBoardComment, (comment) => comment.infoBoard, { cascade: true })
+  comments: InfoBoardComment[];
 }

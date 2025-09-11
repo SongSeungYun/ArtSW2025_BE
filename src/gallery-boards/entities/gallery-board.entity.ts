@@ -1,0 +1,44 @@
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { GalleryBoardImage } from './gallery-board-image.entity';
+import { GalleryBoardComment } from './gallery-board-comment.entity';
+
+@Entity('GalleryBoards', { schema: 'Board' })
+export class GalleryBoard {
+  @PrimaryGeneratedColumn('increment', { type: 'bigint' })
+  gallery_board_id: number;
+
+  @Column({ type: 'uuid' })
+  user_id: string;
+
+  @Column('text', { array: true, nullable: true })
+  used_ai: string[];
+
+  @Column('text', { nullable: true })
+  prompt: string;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+
+  @ManyToOne(() => User, (user) => user.user_id, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
+
+  @OneToMany(() => GalleryBoardImage, (image) => image.galleryBoard, { cascade: true })
+  images: GalleryBoardImage[];
+
+  @OneToMany(() => GalleryBoardComment, (comment) => comment.galleryBoard, { cascade: true })
+  comments: GalleryBoardComment[];
+}
