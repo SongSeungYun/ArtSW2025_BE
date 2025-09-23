@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
 import { User } from './user.entity';
 
-@Entity({ schema: 'auth', name: 'LocalAuths' })
+@Entity({ schema: 'accounts', name: 'local_auths' })
 export class LocalAuth {
   @PrimaryGeneratedColumn({ name: 'auth_id' })
   authId: number;

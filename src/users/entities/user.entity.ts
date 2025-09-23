@@ -4,7 +4,7 @@ import { UserQuizProgress } from '../../user-progress/entities/user-quiz-progres
 import { LocalAuth } from './local-auth.entity';
 import { SocialAuth } from './social-auth.entity';
 
-@Entity({ schema: 'auth', name:'Users' })
+@Entity({ schema: 'accounts', name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
   user_id: string;

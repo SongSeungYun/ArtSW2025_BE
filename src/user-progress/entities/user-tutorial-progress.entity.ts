@@ -5,7 +5,7 @@ import { User } from '../../users/entities/user.entity';
 import { TutorialStatus } from '../../common/enums/tutorial-status.enum';
 import { Method } from '../../tutorials/entities/method.entity';
 
-@Entity('usertutorialprogress', { schema: 'prompting' })
+@Entity('user_tutorial_progress', { schema: 'prompting' })
 export class UserTutorialProgress {
   @PrimaryGeneratedColumn()
   progress_id: number;

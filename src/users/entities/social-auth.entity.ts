@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from './user.entity';
 
-@Entity({ schema: 'auth', name: 'SocialAuths' })
+@Entity({ schema: 'accounts', name: 'social_auths' })
 export class SocialAuth {
   @PrimaryGeneratedColumn({ name: 'social_auth_id' })
   socialAuthId: number;

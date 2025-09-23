@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { GalleryBoard } from './gallery-board.entity';
 
-@Entity('GalleryBoardImages', { schema: 'Board' })
+@Entity('gallery_board_images', { schema: 'board' })
 export class GalleryBoardImage {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   image_id: number;

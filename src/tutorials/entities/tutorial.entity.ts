@@ -4,7 +4,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMan
 import { Method } from './method.entity';
 import { BlankAnswer } from './blank-answer.entity';
 
-@Entity('tutorial', { schema: 'prompting' })
+@Entity('tutorials', { schema: 'prompting' })
 export class Tutorial {
   @PrimaryGeneratedColumn()
   tutorial_id: number;

@@ -10,7 +10,7 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { GalleryBoard } from './gallery-board.entity';
 
-@Entity('GalleryBoardComments', { schema: 'Board' })
+@Entity('gallery_board_comments', { schema: 'board' })
 export class GalleryBoardComment {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   comment_id: number;

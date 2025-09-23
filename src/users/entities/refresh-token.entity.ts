@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { User } from './user.entity';
 
-@Entity({ schema: 'auth', name: 'RefreshTokens' })
+@Entity({ schema: 'accounts', name: 'refresh_tokens' })
 export class RefreshToken {
   @PrimaryGeneratedColumn({ name: 'refresh_token_id' })
   refreshTokenId: number;

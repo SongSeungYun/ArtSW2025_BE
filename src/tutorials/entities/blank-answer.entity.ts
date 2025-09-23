@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { Tutorial } from './tutorial.entity';
 
-@Entity()
+@Entity('blank_answers', { schema: 'prompting' })
 export class BlankAnswer {
   @PrimaryGeneratedColumn({ name: 'blank_answer_id' })
   blankAnswerId: number;

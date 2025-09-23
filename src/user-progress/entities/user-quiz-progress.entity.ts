@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity'; // Assuming a User entity exists
 
-@Entity({ schema: 'prompting', name: 'userquizprogress'})
+@Entity({ schema: 'prompting', name: 'user_quiz_progress' })
 export class UserQuizProgress {
   @PrimaryGeneratedColumn()
   progress_id: number;

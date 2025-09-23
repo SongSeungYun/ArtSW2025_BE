@@ -12,7 +12,7 @@ import { User } from '../../users/entities/user.entity';
 import { GalleryBoardImage } from './gallery-board-image.entity';
 import { GalleryBoardComment } from './gallery-board-comment.entity';
 
-@Entity('GalleryBoards', { schema: 'Board' })
+@Entity('gallery_boards', { schema: 'board' })
 export class GalleryBoard {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   gallery_board_id: number;

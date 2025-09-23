@@ -4,7 +4,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Tutorial } from './tutorial.entity';
 import { UserTutorialProgress } from '../../user-progress/entities/user-tutorial-progress.entity';
 
-@Entity('method', { schema: 'prompting' })
+@Entity('methods', { schema: 'prompting' })
 export class Method {
   @PrimaryGeneratedColumn()
   method_id: number;

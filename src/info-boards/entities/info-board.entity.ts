@@ -11,7 +11,7 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { InfoBoardComment } from './info-board-comment.entity';
 
-@Entity('InfoBoards', { schema: 'Board' })
+@Entity('info_boards', { schema: 'board' })
 export class InfoBoard {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   info_board_id: number;
