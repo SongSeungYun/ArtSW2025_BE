@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Index } from 'typeorm'; // Added Index
 import { Quiz } from './quiz.entity';
 
 @Entity({ schema: 'prompting', name: 'quiz_options' })
@@ -6,6 +6,7 @@ export class Option {
   @PrimaryGeneratedColumn()
   option_id: number;
 
+  @Index(['quiz_id']) // Added Index
   @Column()
   quiz_id: number;
 

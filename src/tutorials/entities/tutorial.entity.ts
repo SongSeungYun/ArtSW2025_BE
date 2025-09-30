@@ -1,6 +1,6 @@
 // Path: src/tutorials/entities/tutorial.entity.ts
 
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, Index } from 'typeorm'; // Added Index
 import { Method } from './method.entity';
 import { BlankAnswer } from './blank-answer.entity';
 
@@ -18,6 +18,7 @@ export class Tutorial {
   @Column({ type: 'text' })
   content: string;
 
+  @Index(['method_id']) // Added Index
   @ManyToOne(() => Method, method => method.tutorials)
   @JoinColumn({ name: 'method_id' })
   method: Method;

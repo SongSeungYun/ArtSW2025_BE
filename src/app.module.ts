@@ -32,9 +32,11 @@ import { AiModule } from './ai/ai.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      ssl : process.env.DB_SSL === 'true',
-      autoLoadEntities: true, // 엔티티 자동 로드
-      synchronize: true, // 다시 false로 설정
+      ssl: {
+        rejectUnauthorized: false, // self-signed 인증서 검증 우회용 (개발/테스트용)
+      },
+      autoLoadEntities: true,
+      synchronize: true, // 프로덕션에서는 false 권장
     }),
     MailerModule.forRootAsync({
       imports: [ConfigModule],

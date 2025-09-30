@@ -4,6 +4,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Index,
 } from 'typeorm';
 import { Tutorial } from './tutorial.entity';
 
@@ -12,6 +13,7 @@ export class BlankAnswer {
   @PrimaryGeneratedColumn({ name: 'blank_answer_id' })
   blankAnswerId: number;
 
+  @Index(['tutorial_id'])
   @Column()
   tutorial_id: number;
 

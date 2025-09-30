@@ -7,6 +7,7 @@ import {
   ManyToOne,
   OneToMany,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { InfoBoardComment } from './info-board-comment.entity';
@@ -16,6 +17,7 @@ export class InfoBoard {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   info_board_id: number;
 
+  @Index(['user_id'])
   @Column({ type: 'uuid' })
   user_id: string;
 

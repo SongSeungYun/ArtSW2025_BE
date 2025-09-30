@@ -7,6 +7,7 @@ import {
   ManyToOne,
   OneToMany,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { GalleryBoardImage } from './gallery-board-image.entity';
@@ -17,6 +18,7 @@ export class GalleryBoard {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   gallery_board_id: number;
 
+  @Index(['user_id'])
   @Column({ type: 'uuid' })
   user_id: string;
 

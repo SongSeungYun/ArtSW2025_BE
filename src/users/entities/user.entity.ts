@@ -9,16 +9,16 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   user_id: string;
 
-  @Column()
+  @Column({ type: 'text' })
   name: string;
 
-  @Column({ unique: true })
+  @Column({ type: 'text', unique: true })
   email: string;
 
   @Column({ name: 'is_admin', default: false })
   isAdmin: boolean;
 
-  @Column({ default: 'active' })
+  @Column({ type: 'text', default: 'active' })
   status: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
