@@ -1,5 +1,3 @@
-// Path: src/user-progress/user-progress.service.ts
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,6 +6,7 @@ import { UserQuizProgress } from './entities/user-quiz-progress.entity';
 import { User } from '../users/entities/user.entity';
 import { UpdateUserProgressDto } from './dto/update-user-progress.dto';
 import { TutorialStatus } from '../common/enums/tutorial-status.enum';
+import { Method } from '../tutorials/entities/method.entity';
 
 @Injectable()
 export class UserProgressService {
@@ -18,7 +17,33 @@ export class UserProgressService {
     private readonly userQuizProgressRepository: Repository<UserQuizProgress>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Method)
+    private readonly methodRepository: Repository<Method>,
   ) {}
+
+  async initializeProgress(user: User): Promise<void> {
+    // 1. Initialize Tutorial Progress
+    const methods = await this.methodRepository.find();
+    const tutorialProgresses = methods.map((method) =>
+      this.userTutorialProgressRepository.create({
+        user: user,
+        method: method,
+        tutorial_status: TutorialStatus.UNCOMPLETED,
+      }),
+    );
+    await this.userTutorialProgressRepository.save(tutorialProgresses);
+
+    // 2. Initialize Quiz Progress
+    const quizTypes = ['multiple-choice', 'short-answer'];
+    const quizProgresses = quizTypes.map((quizType) =>
+      this.userQuizProgressRepository.create({
+        user: user,
+        type: quizType,
+        passed: false,
+      }),
+    );
+    await this.userQuizProgressRepository.save(quizProgresses);
+  }
 
   async getOverallProgress(userId: string) {
     const user = await this.userRepository.findOne({ where: { user_id: userId } });
@@ -37,7 +62,7 @@ export class UserProgressService {
 
     return {
       user: { userId: user.user_id, email: user.email },
-      completedMethods: completedProgress.map(p => ({
+      completedMethods: completedProgress.map((p) => ({
         methodId: p.method_id,
         methodName: p.method ? p.method.method_name : null,
         completedAt: 'N/A',
@@ -85,4 +110,3 @@ export class UserProgressService {
     return this.userTutorialProgressRepository.save(progress);
   }
 }
-
