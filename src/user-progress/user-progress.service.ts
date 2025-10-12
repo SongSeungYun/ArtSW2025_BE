@@ -33,39 +33,53 @@ export class UserProgressService {
     await this.userTutorialProgressRepository.save(newProgresses);
   }
 
-  /*
-  // NOTE: This method needs to be refactored based on the new entity structure.
   async getOverallProgress(userId: string) {
-    const user = await this.userRepository.findOne({ where: { user_id: userId } });
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
-    }
-
-    const completedProgress = await this.userTutorialProgressRepository.find({
-      where: { user_id: userId, is_tutorial_completed: true },
+    // 1. Fetch all progress records for the user, including method details
+    const userProgressRecords = await this.userTutorialProgressRepository.find({
+      where: { user_id: userId },
       relations: ['method'],
+      order: {
+        method_id: 'ASC',
+      },
     });
 
-    // This part is no longer valid
-    // const quizProgress = await this.userQuizProgressRepository.findOne({
-    //   where: { user_id: userId },
-    // });
+    if (!userProgressRecords || userProgressRecords.length === 0) {
+      // This case might happen if a user was created before the progress initialization logic was added
+      throw new NotFoundException(`Progress for user with ID ${userId} not found.`);
+    }
 
-    return {
-      user: { userId: user.user_id, email: user.email },
-      completedMethods: completedProgress.map((p) => ({
-        methodId: p.method_id,
-        methodName: p.method ? p.method.method_name : null,
-        completedAt: 'N/A',
-      })),
-      // quizOverallPassed: quizProgress ? quizProgress.passed : false,
-      summary: {
-        methodsCompletedCount: completedProgress.length,
-        // quizChallengePassed: quizProgress ? quizProgress.passed : false,
+    // 2. Map to the desired response structure
+    const progress_by_method = userProgressRecords.map((p) => ({
+      method_id: p.method_id,
+      method_name: p.method.method_name,
+      is_tutorial_completed: p.is_tutorial_completed,
+      is_multiple_choice_quiz_completed: p.is_multiple_choice_quiz_completed,
+      is_short_answer_quiz_completed: p.is_short_answer_quiz_completed,
+    }));
+
+    // 3. Calculate the summary
+    const summary = userProgressRecords.reduce(
+      (acc, p) => {
+        if (p.is_tutorial_completed) acc.completed_tutorials++;
+        if (p.is_multiple_choice_quiz_completed) acc.completed_mc_quizzes++;
+        if (p.is_short_answer_quiz_completed) acc.completed_sa_quizzes++;
+        return acc;
       },
+      {
+        total_methods: userProgressRecords.length,
+        completed_tutorials: 0,
+        completed_mc_quizzes: 0,
+        completed_sa_quizzes: 0,
+      },
+    );
+
+    // 4. Return the final object
+    return {
+      user_id: userId,
+      progress_by_method,
+      summary,
     };
   }
-  */
 
   async getMethodProgress(userId: string, methodId: number) {
     const progress = await this.userTutorialProgressRepository.findOne({

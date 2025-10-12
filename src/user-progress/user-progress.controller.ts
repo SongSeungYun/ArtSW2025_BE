@@ -13,7 +13,6 @@ import { UpdateUserProgressDto } from './dto/update-user-progress.dto';
 export class UserProgressController {
   constructor(private readonly userProgressService: UserProgressService) {}
 
-  /*
   @Get()
   @ApiOperation({ summary: 'Get overall user progress' })
   @ApiResponse({ status: 200, description: 'Returns overall progress summary.' })
@@ -21,7 +20,6 @@ export class UserProgressController {
     const userId = req.user.user_id;
     return this.userProgressService.getOverallProgress(userId);
   }
-  */
 
   @Get('methods/:methodId')
   @ApiOperation({ summary: 'Get specific method progress for the user' })
