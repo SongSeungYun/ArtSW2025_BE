@@ -33,6 +33,7 @@ export class UserProgressController {
     return this.userProgressService.getMethodProgress(userId, methodId);
   }
 
+  /*
   @Patch('methods/:methodId')
   @ApiOperation({ summary: 'Update specific method progress for the user' })
   @ApiResponse({ status: 200, description: 'Updated progress for the method.' })
@@ -45,5 +46,6 @@ export class UserProgressController {
     const userId = req.user.user_id;
     return this.userProgressService.updateMethodProgress(userId, methodId, updateDto);
   }
+  */
 }
 

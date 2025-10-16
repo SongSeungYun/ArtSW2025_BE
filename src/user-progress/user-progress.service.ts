@@ -1,52 +1,83 @@
-// Path: src/user-progress/user-progress.service.ts
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserTutorialProgress } from './entities/user-tutorial-progress.entity';
-import { UserQuizProgress } from './entities/user-quiz-progress.entity';
 import { User } from '../users/entities/user.entity';
 import { UpdateUserProgressDto } from './dto/update-user-progress.dto';
-import { TutorialStatus } from '../common/enums/tutorial-status.enum';
+import { Method } from '../tutorials/entities/method.entity';
 
 @Injectable()
 export class UserProgressService {
   constructor(
     @InjectRepository(UserTutorialProgress)
     private readonly userTutorialProgressRepository: Repository<UserTutorialProgress>,
-    @InjectRepository(UserQuizProgress)
-    private readonly userQuizProgressRepository: Repository<UserQuizProgress>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Method)
+    private readonly methodRepository: Repository<Method>,
   ) {}
 
+  async initializeProgress(user: User): Promise<void> {
+    const methods = await this.methodRepository.find();
+
+    const newProgresses = methods.map((method) =>
+      this.userTutorialProgressRepository.create({
+        user: user,
+        method: method,
+        is_tutorial_completed: false,
+        is_multiple_choice_quiz_completed: false,
+        is_short_answer_quiz_completed: false,
+      }),
+    );
+
+    await this.userTutorialProgressRepository.save(newProgresses);
+  }
+
   async getOverallProgress(userId: string) {
-    const user = await this.userRepository.findOne({ where: { user_id: userId } });
-    if (!user) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
+    // 1. Fetch all progress records for the user, including method details
+    const userProgressRecords = await this.userTutorialProgressRepository.find({
+      where: { user_id: userId },
+      relations: ['method'],
+      order: {
+        method_id: 'ASC',
+      },
+    });
+
+    if (!userProgressRecords || userProgressRecords.length === 0) {
+      // This case might happen if a user was created before the progress initialization logic was added
+      throw new NotFoundException(`Progress for user with ID ${userId} not found.`);
     }
 
-    const completedProgress = await this.userTutorialProgressRepository.find({
-      where: { user_id: userId, tutorial_status: TutorialStatus.COMPLETED },
-      relations: ['method'],
-    });
+    // 2. Map to the desired response structure
+    const progress_by_method = userProgressRecords.map((p) => ({
+      method_id: p.method_id,
+      method_name: p.method.method_name,
+      is_tutorial_completed: p.is_tutorial_completed,
+      is_multiple_choice_quiz_completed: p.is_multiple_choice_quiz_completed,
+      is_short_answer_quiz_completed: p.is_short_answer_quiz_completed,
+    }));
 
-    const quizProgress = await this.userQuizProgressRepository.findOne({
-      where: { user_id: userId },
-    });
-
-    return {
-      user: { userId: user.user_id, email: user.email },
-      completedMethods: completedProgress.map(p => ({
-        methodId: p.method_id,
-        methodName: p.method ? p.method.method_name : null,
-        completedAt: 'N/A',
-      })),
-      quizOverallPassed: quizProgress ? quizProgress.passed : false,
-      summary: {
-        methodsCompletedCount: completedProgress.length,
-        quizChallengePassed: quizProgress ? quizProgress.passed : false,
+    // 3. Calculate the summary
+    const summary = userProgressRecords.reduce(
+      (acc, p) => {
+        if (p.is_tutorial_completed) acc.completed_tutorials++;
+        if (p.is_multiple_choice_quiz_completed) acc.completed_mc_quizzes++;
+        if (p.is_short_answer_quiz_completed) acc.completed_sa_quizzes++;
+        return acc;
       },
+      {
+        total_methods: userProgressRecords.length,
+        completed_tutorials: 0,
+        completed_mc_quizzes: 0,
+        completed_sa_quizzes: 0,
+      },
+    );
+
+    // 4. Return the final object
+    return {
+      user_id: userId,
+      progress_by_method,
+      summary,
     };
   }
 
@@ -63,6 +94,8 @@ export class UserProgressService {
     return progress;
   }
 
+  /*
+  // NOTE: This method needs to be refactored based on the new entity structure.
   async updateMethodProgress(
     userId: string,
     methodId: number,
@@ -73,16 +106,18 @@ export class UserProgressService {
     });
 
     if (!progress) {
+      // Creating a new progress record might need more info based on the DTO
       progress = this.userTutorialProgressRepository.create({
         user_id: userId,
         method_id: methodId,
-        tutorial_status: updateDto.status,
+        // ... other fields need to be set
       });
     } else {
-      progress.tutorial_status = updateDto.status;
+      // Update logic needs to be defined based on the DTO
+      // e.g., progress.is_tutorial_completed = updateDto.is_tutorial_completed
     }
 
     return this.userTutorialProgressRepository.save(progress);
   }
+  */
 }
-

@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Tutorial } from './entities/tutorial.entity';
 import { UserTutorialProgress } from '../user-progress/entities/user-tutorial-progress.entity';
-import { TutorialStatus } from '../common/enums/tutorial-status.enum';
 import { Method } from './entities/method.entity';
 import { CreateTutorialDto } from './dto/create-tutorial.dto';
 import { BlankAnswerRepository } from './repositories/blank-answer.repository';
@@ -32,7 +31,7 @@ export class TutorialsService {
     const savedTutorial = await this.tutorialRepository.save(newTutorial);
 
     if (savedTutorial.type === 'blank' && blankAnswers && blankAnswers.length > 0) {
-      const answersToSave = blankAnswers.map(answerDto => {
+      const answersToSave = blankAnswers.map((answerDto) => {
         const newAnswer = new BlankAnswer();
         newAnswer.order = answerDto.order;
         newAnswer.answer = answerDto.answer;
@@ -73,12 +72,14 @@ export class TutorialsService {
     });
 
     if (progress) {
-      progress.tutorial_status = TutorialStatus.COMPLETED;
+      progress.is_tutorial_completed = true;
     } else {
       progress = this.userProgressRepository.create({
         user_id: userId,
         method_id: methodId,
-        tutorial_status: TutorialStatus.COMPLETED,
+        is_tutorial_completed: true,
+        is_multiple_choice_quiz_completed: false,
+        is_short_answer_quiz_completed: false,
       });
     }
 
