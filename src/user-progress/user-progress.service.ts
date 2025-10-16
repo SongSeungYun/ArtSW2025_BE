@@ -94,30 +94,30 @@ export class UserProgressService {
     return progress;
   }
 
-  /*
-  // NOTE: This method needs to be refactored based on the new entity structure.
-  async updateMethodProgress(
+  async updateTutorialCompletion(
     userId: string,
     methodId: number,
-    updateDto: UpdateUserProgressDto,
-  ) {
-    let progress = await this.userTutorialProgressRepository.findOne({
-      where: { user_id: userId, method_id: methodId },
-    });
+    completed: boolean,
+  ): Promise<UserTutorialProgress> {
+    const progress = await this.getMethodProgress(userId, methodId);
+    progress.is_tutorial_completed = completed;
+    return this.userTutorialProgressRepository.save(progress);
+  }
 
-    if (!progress) {
-      // Creating a new progress record might need more info based on the DTO
-      progress = this.userTutorialProgressRepository.create({
-        user_id: userId,
-        method_id: methodId,
-        // ... other fields need to be set
-      });
-    } else {
-      // Update logic needs to be defined based on the DTO
-      // e.g., progress.is_tutorial_completed = updateDto.is_tutorial_completed
+  async updateQuizCompletion(
+    userId: string,
+    methodId: number,
+    quizType: 'multiple-choice' | 'short-answer',
+    passed: boolean,
+  ): Promise<UserTutorialProgress> {
+    const progress = await this.getMethodProgress(userId, methodId);
+
+    if (quizType === 'multiple-choice') {
+      progress.is_multiple_choice_quiz_completed = passed;
+    } else if (quizType === 'short-answer') {
+      progress.is_short_answer_quiz_completed = passed;
     }
 
     return this.userTutorialProgressRepository.save(progress);
   }
-  */
 }

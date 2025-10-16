@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, OneToOne, UpdateDateColumn } from 'typeorm';
 import { UserTutorialProgress } from '../../user-progress/entities/user-tutorial-progress.entity';
-import { UserQuizProgress } from '../../user-progress/entities/user-quiz-progress.entity';
+
 import { LocalAuth } from './local-auth.entity';
 import { SocialAuth } from './social-auth.entity';
 
@@ -36,6 +36,5 @@ export class User {
   @OneToMany(() => UserTutorialProgress, (progress) => progress.user)
   tutorialProgress: UserTutorialProgress[];
 
-  @OneToMany(() => UserQuizProgress, (progress) => progress.user)
-  quizProgress: UserQuizProgress[];
+  
 }

@@ -1,60 +1,56 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Quiz } from './entities/quiz.entity';
-import { Option } from './entities/option.entity';
 import { CreateQuizSubmissionDto } from './dto/quiz-submission.dto';
-import { UserQuizProgress } from '../user-progress/entities/user-quiz-progress.entity';
+import { UserProgressService } from '../user-progress/user-progress.service';
+import { AiService } from '../ai/ai.service';
 
 @Injectable()
 export class QuizzesService {
   constructor(
     @InjectRepository(Quiz)
     private readonly quizRepository: Repository<Quiz>,
-    @InjectRepository(Option)
-    private readonly optionRepository: Repository<Option>,
-    @InjectRepository(UserQuizProgress)
-    private readonly userQuizProgressRepository: Repository<UserQuizProgress>,
+    private readonly userProgressService: UserProgressService,
+    private readonly aiService: AiService,
   ) {}
 
-  async findRandomQuizzes(mcCount: number) {
-    // Fetch random multiple-choice quizzes
-    const mcQuizzes = await this.quizRepository.find({
-      where: { type: 'multiple-choice' },
-      relations: ['options'],
-      order: { quiz_id: 'ASC' }, // Placeholder for random order, actual random might need more complex query
-      take: mcCount,
-    });
+  async gradeSubmissions(
+    userId: string,
+    submissionDto: CreateQuizSubmissionDto,
+  ) {
+    const { methodId, submissions } = submissionDto;
 
-    // Fetch 1 random short-answer quiz
-    const saQuiz = await this.quizRepository.findOne({
-      where: { type: 'short-answer' },
-      order: { quiz_id: 'ASC' }, // Placeholder for random order
-    });
-
-    const quizzes = [...mcQuizzes];
-    if (saQuiz) {
-      quizzes.push(saQuiz);
+    if (!submissions || submissions.length === 0) {
+      throw new BadRequestException('Submissions array cannot be empty.');
     }
 
-    // Remove is_answer from options before sending to client
-    return quizzes.map(quiz => {
-      if (quiz.options) {
-        const sanitizedOptions = quiz.options.map(({ is_answer, ...rest }) => rest);
-        return { ...quiz, options: sanitizedOptions };
-      }
-      return quiz;
-    });
+    const quizType = submissions[0].type;
+
+    if (quizType === 'multiple-choice') {
+      return this.gradeMultipleChoice(userId, methodId, submissions);
+    } else if (quizType === 'short-answer') {
+      return this.gradeShortAnswer(userId, methodId, submissions);
+    } else {
+      throw new BadRequestException('Invalid or mixed quiz types in submission.');
+    }
   }
 
-  async gradeSubmissions(userId: string, submissionDto: CreateQuizSubmissionDto) {
+  private async gradeMultipleChoice(
+    userId: string,
+    methodId: number,
+    submissions: any[],
+  ) {
     const results: any[] = [];
     let correctCount = 0;
-    let totalGraded = 0;
 
-    for (const submission of submissionDto.submissions) {
+    for (const submission of submissions) {
       const quiz = await this.quizRepository.findOne({
-        where: { quiz_id: submission.quizId },
+        where: { quiz_id: submission.quizId, type: 'multiple-choice' },
         relations: ['options'],
       });
 
@@ -63,49 +59,103 @@ export class QuizzesService {
         continue;
       }
 
+      const correctOption = quiz.options.find((opt) => opt.is_answer);
       let passedIndividual = false;
-      let correctAnswer: number | string | null = null;
 
-      if (quiz.type === 'multiple-choice') {
-        const correctOption = quiz.options.find(opt => opt.is_answer);
-        if (correctOption) {
-          correctAnswer = correctOption.option_id;
-          if (submission.selectedOptionId === correctOption.option_id) {
-            passedIndividual = true;
-            correctCount++;
-          }
-        }
-        totalGraded++;
-      } else if (quiz.type === 'short-answer') {
-        passedIndividual = false; // Assume false for now, or null for pending
-        correctAnswer = 'Manual Review'; // Indicate manual review needed
-        totalGraded++;
+      if (correctOption && submission.selectedOptionId === correctOption.option_id) {
+        passedIndividual = true;
+        correctCount++;
       }
 
       results.push({
         quizId: submission.quizId,
         passed: passedIndividual,
-        correctAnswer: correctAnswer,
-        submittedAnswer: submission.selectedOptionId || submission.answerText,
+        correctAnswerId: correctOption ? correctOption.option_id : null,
       });
     }
 
-    const overallPassed = totalGraded > 0 && correctCount === totalGraded;
+    const allPassed = correctCount === submissions.length;
+    if (allPassed) {
+      await this.userProgressService.updateQuizCompletion(
+        userId,
+        methodId,
+        'multiple-choice',
+        true,
+      );
+    }
 
-    let userProgress = await this.userQuizProgressRepository.findOne({
-      where: { user_id: userId },
+    return {
+      quizType: 'multiple-choice',
+      results,
+      overallPassed: allPassed,
+    };
+  }
+
+  private async gradeShortAnswer(
+    userId: string,
+    methodId: number,
+    submissions: any[],
+  ) {
+    if (submissions.length > 1) {
+      throw new BadRequestException(
+        'Only one short-answer submission is allowed at a time.',
+      );
+    }
+    const submission = submissions[0];
+    const { quizId, answerText } = submission;
+
+    const aiResponse = await this.aiService.createEvaluation({
+      problem_id: quizId.toString(),
+      user_prompt: answerText,
     });
 
-    if (userProgress) {
-      userProgress.passed = overallPassed;
-    } else {
-      userProgress = this.userQuizProgressRepository.create({
-        user_id: userId,
-        passed: overallPassed,
-      });
-    }
-    await this.userQuizProgressRepository.save(userProgress);
+    const score = aiResponse.overall_score || 0;
+    const feedback = aiResponse.llm_eval?.feedback || 'No feedback received.';
 
-    return { results, overallPassed };
+    const passed = score >= 80; // Passing threshold
+
+    if (passed) {
+      await this.userProgressService.updateQuizCompletion(
+        userId,
+        methodId,
+        'short-answer',
+        true,
+      );
+    }
+
+    return {
+      quizType: 'short-answer',
+      quizId,
+      passed,
+      score,
+      feedback,
+    };
+  }
+
+  async findRandomQuizzes(mcCount: number) {
+    const mcQuizzes = await this.quizRepository.find({
+      where: { type: 'multiple-choice' },
+      relations: ['options'],
+      order: { quiz_id: 'ASC' },
+      take: mcCount,
+    });
+
+    const saQuiz = await this.quizRepository.findOne({
+      where: { type: 'short-answer' },
+      order: { quiz_id: 'ASC' },
+    });
+
+    const quizzes = [...mcQuizzes];
+    if (saQuiz) {
+      quizzes.push(saQuiz);
+    }
+
+    return quizzes.map((quiz) => {
+      if (quiz.options) {
+        const sanitizedOptions = quiz.options.map(({ is_answer, ...rest }) => rest);
+        return { ...quiz, options: sanitizedOptions };
+      }
+      return quiz;
+    });
   }
 }

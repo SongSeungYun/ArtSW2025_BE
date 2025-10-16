@@ -1,4 +1,4 @@
-import { IsInt, IsString, IsOptional, IsArray, ValidateNested, IsEnum } from 'class-validator';
+import { IsInt, IsString, IsOptional, IsArray, ValidateNested, IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class SubmissionDto {
@@ -19,8 +19,13 @@ class SubmissionDto {
 }
 
 export class CreateQuizSubmissionDto {
+  @IsNotEmpty()
+  @IsNumber()
+  methodId: number;
+
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => SubmissionDto)
   submissions: SubmissionDto[];
 }
+
