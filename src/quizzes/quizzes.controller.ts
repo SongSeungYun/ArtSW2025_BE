@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, Body, Req, UseGuards, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Query, Body, Req, UseGuards, ParseIntPipe, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { QuizzesService } from './quizzes.service';
 import { CreateQuizSubmissionDto } from './dto/quiz-submission.dto';
@@ -14,6 +14,13 @@ export class QuizzesController {
   @ApiResponse({ status: 200, description: 'Returns a list of random quizzes.' })
   async getRandomQuizzes(@Query('mcCount', ParseIntPipe) mcCount: number) {
     return this.quizzesService.findRandomQuizzes(mcCount);
+  }
+
+  @Get('method/:methodId')
+  @ApiOperation({ summary: 'Get 3 multiple-choice quizzes by method ID' })
+  @ApiResponse({ status: 200, description: 'Returns a list of 3 quizzes for the given method.' })
+  async getQuizzesByMethod(@Param('methodId', ParseIntPipe) methodId: number) {
+    return this.quizzesService.findQuizzesByMethod(methodId);
   }
 
   @Post('submissions')

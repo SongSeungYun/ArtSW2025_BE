@@ -132,6 +132,27 @@ export class QuizzesService {
     };
   }
 
+  async findQuizzesByMethod(methodId: number) {
+    const quizzes = await this.quizRepository.find({
+      where: { method_id: methodId, type: 'multiple-choice' },
+      relations: ['options'],
+      take: 3,
+    });
+
+    if (!quizzes || quizzes.length === 0) {
+      throw new NotFoundException(`No multiple-choice quizzes found for method ID ${methodId}`);
+    }
+
+    return quizzes.map((quiz) => {
+      // Sanitize options to remove the is_answer field before sending to the client
+      if (quiz.options) {
+        const sanitizedOptions = quiz.options.map(({ is_answer, ...rest }) => rest);
+        return { ...quiz, options: sanitizedOptions };
+      }
+      return quiz;
+    });
+  }
+
   async findRandomQuizzes(mcCount: number) {
     const mcQuizzes = await this.quizRepository.find({
       where: { type: 'multiple-choice' },

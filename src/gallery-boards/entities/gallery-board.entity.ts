@@ -22,8 +22,8 @@ export class GalleryBoard {
   @Column({ type: 'uuid' })
   user_id: string;
 
-  @Column('text', { array: true, nullable: true })
-  used_ai: string[];
+  @Column('text', { nullable: true })
+  used_ai: string;
 
   @Column('text', { nullable: true })
   prompt: string;
