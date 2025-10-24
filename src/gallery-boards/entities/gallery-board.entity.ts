@@ -22,6 +22,9 @@ export class GalleryBoard {
   @Column({ type: 'uuid' })
   user_id: string;
 
+  @Column('varchar', { length: 255 })
+  title: string;
+
   @Column('text', { nullable: true })
   used_ai: string;
 
